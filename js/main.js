@@ -44,8 +44,8 @@ county_sel.onchange = function () {
     if (county_sel.options[0].value == 0) {
       county_sel.remove(0);
     }
-    const_sel.innerHTML = "<option value=\"0\">Loading Districts... </option>";
-    ward_sel.innerHTML = "<option value=\"0\">Loading Electoral Areas...</option>";
+    const_sel.innerHTML = "<option value=\"0\">Loading Constituencies... </option>";
+    ward_sel.innerHTML = "<option value=\"0\">Loading Wards...</option>";
 
     header_name.innerHTML = unescape(toTitleCase(escape(county_sel.options[county_sel.selectedIndex].innerHTML))) + " Region";
 
@@ -125,18 +125,18 @@ const_sel.onchange = function () {
       ward_sel.innerHTML += "<option value=\"" + ward_code[i] + "\">" + toTitleCase(ward_name[i]) + "</option>";
     }
 
+    //$("#reg-centres").html("");
+    //for (var i = 0; i < ward_reg_code.length; i++) {
+    //  $("#reg-centres").html($("#reg-centres").html() +
+    //      "<tr><td><p>" + toTitleCase(ward_reg_name[i]) + "</p></td></tr>");
+    //}
     $("#reg-centres").html("");
-    for (var i = 0; i < ward_reg_code.length; i++) {
-      $("#reg-centres").html($("#reg-centres").html() +
-          "<tr><td><p>" + toTitleCase(ward_reg_name[i]) + "</p></td></tr>");
-    }
-    $("#other-centres").html("");
     for (var i = 0; i < centre_code.length; i++) {
-      $("#other-centres").html($("#other-centres").html() +
+      $("#reg-centres").html($("#reg-centres").html() +
           "<tr><td><p>" + toTitleCase(centre_name[i]) + "</p></td></tr>");
     }
 
-    header_name.innerHTML = unescape(toTitleCase(escape(ward_name[0]))) + " Electoral Area";
+    header_name.innerHTML = unescape(toTitleCase(escape(ward_name[0]))) + " Ward";
   }
 };
 
@@ -173,18 +173,18 @@ ward_sel.onchange = function () {
       }
     }
 
+    //$("#reg-centres").html("");
+    //for (var i = 0; i < ward_reg_code.length; i++) {
+    //  $("#reg-centres").html($("#reg-centres").html() +
+    //      "<tr><td><p>" + toTitleCase(ward_reg_name[i]) + "</p></td></tr>");
+    //}
     $("#reg-centres").html("");
-    for (var i = 0; i < ward_reg_code.length; i++) {
-      $("#reg-centres").html($("#reg-centres").html() +
-          "<tr><td><p>" + toTitleCase(ward_reg_name[i]) + "</p></td></tr>");
-    }
-    $("#other-centres").html("");
     for (var i = 0; i < centre_code.length; i++) {
-      $("#other-centres").html($("#other-centres").html() +
+      $("#reg-centres").html($("#reg-centres").html() +
           "<tr><td><p>" + toTitleCase(centre_name[i]) + "</p></td></tr>");
     }
 
-    header_name.innerHTML = unescape(toTitleCase(escape(ward_sel.options[ward_sel.selectedIndex].text))) + " Electoral Area";
+    header_name.innerHTML = unescape(toTitleCase(escape(ward_sel.options[ward_sel.selectedIndex].text))) + " Ward";
   }
 };
 
@@ -297,18 +297,18 @@ function run_get_centres(table_id) {
         ward_sel.innerHTML += "<option value=\"" + ward_code[i] + "\">" + toTitleCase(ward_name[i]) + "</option>";
       }
 
+      //$("#reg-centres").html("");
+      //for (var i = 0; i < ward_reg_code.length; i++) {
+      //  $("#reg-centres").html($("#reg-centres").html() +
+      //      "<tr><td><p>" + toTitleCase(ward_reg_name[i]) + "</p></td></tr>");
+      //}
       $("#reg-centres").html("");
-      for (var i = 0; i < ward_reg_code.length; i++) {
-        $("#reg-centres").html($("#reg-centres").html() +
-            "<tr><td><p>" + toTitleCase(ward_reg_name[i]) + "</p></td></tr>");
-      }
-      $("#other-centres").html("");
       for (var i = 0; i < centre_code.length; i++) {
-        $("#other-centres").html($("#other-centres").html() +
+        $("#reg-centres").html($("#reg-centres").html() +
             "<tr><td><p>" + toTitleCase(centre_name[i]) + "</p></td></tr>");
       }
 
-      header_name.innerHTML = unescape(toTitleCase(escape(ward_name[0]))) + " Electoral Area";
+      header_name.innerHTML = unescape(toTitleCase(escape(ward_name[0]))) + " Ward";
 
     }
   };
