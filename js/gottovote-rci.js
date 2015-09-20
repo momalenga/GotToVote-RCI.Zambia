@@ -126,23 +126,24 @@ gtv.rci = {
 
                   child_admins = [];
 
-                  if (typeof gtv.rci.admin_levels.selects[select_index-1] === 'number' || select_index == 0) {
-                    $.each(gtv.rci.admin_levels.data.levels[select_index].items, function (admin_index, admin_name) {
-                      is_child = false;
-                      $.each(gtv.rci.admin_levels.data.items, function (levels_check_index, levels_check_value) {
-                        if (levels_check_value[select_index*2] == gtv.rci.admin_levels.selects[select_index-1]+1 || select_index == 0) {
-                          is_child = true;
-                          return false;
-                        };
-                      });
-                      if (is_child) {
-                        child_admins.push({
-                          id: admin_index,
-                          name: admin_name
-                        });
+                  $.each(gtv.rci.admin_levels.data.levels[select_index].items, function (admin_index, admin_name) {
+                    is_child = false;
+                    $.each(gtv.rci.admin_levels.data.items, function (levels_check_index, levels_check_value) {
+                      if (select_index == 0) {
+                        is_child = true;
+                        return false;
+                      } else if (levels_check_value[(select_index-1)*2] == gtv.rci.admin_levels.selects[select_index-1]+1 && levels_check_value[select_index*2] == admin_index + 1) {
+                        is_child = true;
+                        return false;
                       };
                     });
-                  };
+                    if (is_child) {
+                      child_admins.push({
+                        id: admin_index,
+                        name: admin_name
+                      });
+                    };
+                  });
 
                   $.each(child_admins, function (admin_index, admin) {
                       admin_levels_html[select_index] = admin_levels_html[select_index] + '<option value="'+ admin.id +'">' + admin.name.toLowerCase() + '</option>';
@@ -176,58 +177,8 @@ gtv.rci = {
           gtv.rci.admin_levels.display(select_index, $(this).val());
         });
       });
-
-
-      return true;
-
-      // Old code
-
-      $.each(gtv.rci.admin_levels.data.levels, function (index, level) {
-
-        if (index < level_index || index == level_index || index == level_index + 1 || index == 0) {
-          admin_levels_html[index] = '' +
-            '<div class="col-md-4" id="admin-level-select-' + index + '">' +
-              '<div>' +
-                '<p class="lead">' + gtv.rci.admin_levels.schema[index].title + '</p>' +
-                '<select class="form-control">' +
-                  '<option value="s">Select ' + gtv.rci.admin_levels.schema[index].title + '</option>';
-                  $.each(level.items, function (admin_index, admin_name) {
-                    is_child = false;
-                    $.each(gtv.rci.admin_levels.data.items, function (levels_check_index, levels_check_value) {
-                      if (levels_check_value[level_index*2] == level_select+1 ) {
-                        is_child = true;
-                        return false;
-                      };
-                    });
-                    if (is_child || index == 0) {
-                      admin_levels_html[index] = admin_levels_html[index] + '<option value="'+ admin_index +'">' + admin_name.toLowerCase() + '</option>';
-                    };
-
-                  });
-          admin_levels_html[index] = admin_levels_html[index] +    
-                '</select>'+
-              '</div>'+
-            '</div>';
-          if (index != 0 && index > level_index) {
-            gtv.rci.admin_levels.select[index] = 's';
-          };
-        };
-
-        if (index > level_index && gtv.rci.admin_levels.select[index-1] == 's' || index > level_index + 1) {
-          admin_levels_html[index] = 
-            '<div class="col-md-4" id="admin-level-select-' + index + '">'+
-              '<div>'+
-                '<p class="lead">' + gtv.rci.admin_levels.schema[index].title + '</p>'+
-                '<select class="form-control">'+
-                  '<option value="s">Please select ' + gtv.rci.admin_levels.schema[index-1].title + ' first</option>';
-          admin_levels_html[index] = admin_levels_html[index] +    
-                '</select>'+
-              '</div>'+
-            '</div>';
-            gtv.rci.admin_levels.selects[index] = 's';
-        };
-      });
       
+      return true;
     };
   };
 
