@@ -3,7 +3,7 @@ layout: default
 title: "Find Your Registration Centre"
 home: active
 
-custom_js: main
+custom_js: gottovote-rci
 ---
 
 <!-- <div class="alert alert-info alert-dismissible" role="alert">
@@ -55,41 +55,8 @@ custom_js: main
 <div id="find-reg" class="text-center">
 <h2>Find A Registration Centre!</h2>
 
-  <div class="row marketing" style="margin-top: 20px;">
-    <div class="col-md-4">
-      <div>
-        <p class="lead">Province</p>
-        <select id="county_select" class="form-control">
-          <option value="0">Select Province</option>
-          <option value="00000101">Central</option>
-          <option value="00000102">Copperbelt</option>
-          <option value="00000103">Eastern</option>
-          <option value="00000104">Luapula</option>
-          <option value="00000105">Lusaka</option>
-          <option value="00000106">Muchinga</option>
-          <option value="00000107">Northern</option>
-          <option value="00000108">North-Western</option>
-          <option value="00000109">Southern</option>
-          <option value="00000110">Western</option>
-        </select>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div style="text-align: center;">
-        <p class="lead">Constituency</p>
-        <select id="const_select" class="form-control">
-          <option value="0">- Select a Province First -</option>
-        </select>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div style="text-align: center;" >
-        <p class="lead">Ward</p>
-        <select id="ward_select" class="form-control">
-          <option value="0">- Select a Province First -</option>
-        </select>
-      </div>
-    </div>
+  <div class="row marketing" style="margin-top: 20px;" id="admin-levels-selects">
+    
   </div>
 
   <div id="found-reg" style="display: none;">

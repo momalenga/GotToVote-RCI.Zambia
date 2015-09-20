@@ -162,3 +162,9 @@ footer {
     }
   }
 }
+
+#admin-levels-selects {
+  select, option {
+    text-transform: capitalize;
+  }
+}
