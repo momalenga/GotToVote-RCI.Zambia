@@ -32,3 +32,13 @@ ft:
     - id_col: "Constituency Code"
       name_col: "Constituency Name"
       title: "Constituency"
+  reg_centres:
+    id_col: "Id"
+    name_col: "Polling Station / Reg Centre"
+    phase_col: "Phase"
+    phase_start_col: "Phase Start"
+    phase_end_col: "Phase End"
+    title: "Registration Centres"
+    ward_name_col: "Ward Name"
+    polling_district_no: "Polling District No."
+    polling_district_name: "Polling District Name"

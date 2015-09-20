@@ -62,6 +62,23 @@ gtv.rci = {
     ],
     data: {},
     selects: []
+  },
+
+  reg_centres: {
+    schema:
+      {
+        id_col: "{{ site.ft.reg_centres.id_col }}",
+        name_col: "{{ site.ft.reg_centres.name_col }}",
+        phase_col: "{{ site.ft.reg_centres.phase_col }}",
+        phase_start_col: "{{ site.ft.reg_centres.phase_start_col }}",
+        phase_end_col: "{{ site.ft.reg_centres.phase_end_col }}",
+        title: "{{ site.ft.reg_centres.title }}",
+
+        ward_name_col: "{{ site.ft.reg_centres.ward_name_col }}",
+        polling_district_no: "{{ site.ft.reg_centres.polling_district_no }}",
+        polling_district_name: "{{ site.ft.reg_centres.polling_district_name }}"
+      },
+    data: {}
   }
 };
 
@@ -83,13 +100,8 @@ gtv.rci = {
     $.ajax({
       url: "https://www.googleapis.com/fusiontables/v2/tables/" + gtv.rci.TABLE_ID + "/columns",
       data: { key: gtv.rci.API_KEY }
-    }).done(function (msg) {
-      gtv.rci.columns.set(msg);
-      if (typeof index === 'number') {
-        return gtv.rci.columns.data.items[index];
-      } else {
-        return gtv.rci.columns.data;
-      }
+    }).done(function (response) {
+      gtv.rci.columns.set(response);
     });
   };
 
@@ -107,13 +119,13 @@ gtv.rci = {
 
       // iterate through selects
 
-      $.each(this.selects, function (select_index, select_val) {
+      $.each(this.selects, function (select_index, select_value) {
 
         level = gtv.rci.admin_levels.data.levels[select_index];
 
         if (select_index > level_index) {
           gtv.rci.admin_levels.selects[select_index] = 's';
-          select_val = 's';
+          select_value = 's';
         };
 
         if (select_index == 0 || gtv.rci.admin_levels.selects[select_index-1] != 's' ) {
@@ -153,7 +165,7 @@ gtv.rci = {
                 '</select>'+
               '</div>'+
             '</div>';
-        } else if (select_val == 's'){
+        } else if (select_value == 's'){
           admin_levels_html[select_index] = 
             '<div class="col-md-4" id="admin-level-select-' + select_index + '">'+
               '<div>'+
@@ -171,13 +183,24 @@ gtv.rci = {
 
       
       $('#admin-levels-selects').html(admin_levels_html.join(''));
+
       $.each(gtv.rci.admin_levels.selects, function (select_index, select_value) {
+
         $('#admin-level-select-' + select_index + ' select').val(select_value.toString());
+
         $('#admin-level-select-' + select_index + ' select').change( function() {
           gtv.rci.admin_levels.display(select_index, $(this).val());
         });
+
+        if (level_select != 's' && select_index > level_index) {
+          gtv.rci.admin_levels.display(select_index, $('#admin-level-select-' + select_index + ' select').children().eq(1).val());
+        };
+
       });
-      
+
+      // TODO: Display the rest of the details if the last select is not 's'; else clear the section
+      gtv.rci.reg_centres.display();
+
       return true;
     };
   };
@@ -185,7 +208,7 @@ gtv.rci = {
   gtv.rci.admin_levels.set = function (data) {
     this.data.items = data;
     this.data.levels = [];
-    $.each(gtv.rci.admin_levels.schema, function (schema_index, schema_value){
+    $.each(this.schema, function (schema_index, schema_value){
       $.each(data, function (index, value) {
         if (typeof gtv.rci.admin_levels.data.levels[schema_index] === 'undefined') {
           gtv.rci.admin_levels.data.levels[schema_index] = {
@@ -199,20 +222,20 @@ gtv.rci = {
       gtv.rci.admin_levels.selects[schema_index] = 's';
     });
 
-    gtv.rci.admin_levels.display(0, 's');
+    this.display(0, 's');
     
     return this.data;
   };
 
   gtv.rci.admin_levels.fetch = function (index) {
     sql_admin_levels_cols = "";
-    $.each(gtv.rci.admin_levels.schema, function(index, value){
+    $.each(this.schema, function(index, value){
       sql_admin_levels_cols += "'" + value.id_col + "'" + "," + "'" + value.name_col + "'" + ",";
     });
     sql_admin_levels_cols = sql_admin_levels_cols.substring(0, sql_admin_levels_cols.length-1);
 
     sql_admin_levels = "SELECT " + sql_admin_levels_cols + " FROM " + gtv.rci.TABLE_ID +
-                      " GROUP BY " + sql_admin_levels_cols +"";
+                      " GROUP BY " + sql_admin_levels_cols;
 
     $.ajax({
       url: gtv.rci.FT_SQL_URL,
@@ -222,15 +245,126 @@ gtv.rci = {
       }
     }).done( function (response) {
       gtv.rci.admin_levels.set(response.rows);
-      console.log(gtv.rci.admin_levels.data);
     });
   };
 
+
+
+  gtv.rci.reg_centres.display = function (is_fetched) {
+    if (gtv.rci.admin_levels.selects[gtv.rci.admin_levels.selects.length-1] == 's') {
+      $('#gtv-reg-centres').html('');
+      return false;
+    };
+
+    if (!is_fetched) {
+      this.fetch();
+    } else {
+
+    };
+    
+  };
+
+  gtv.rci.reg_centres.set = function (rows) {
+    this.data.items = rows;
+    this.data.centres = [];
+    this.data.phases = [];
+
+    col_reg_centre_id = 0;
+    col_reg_centre_name = 0;
+
+    col_phase = 0;
+    col_phase_start = 0;
+    col_phase_end = 0;
+
+    col_ward_name = 0;
+    col_pd_no = 0;
+    col_pd_name = 0;
+
+    $.each(gtv.rci.columns.data.items, function(column_index, column_data){
+      if (column_data.name == gtv.rci.reg_centres.schema.id_col) {
+        col_reg_centre_id = column_index;
+      };
+      if (column_data.name == gtv.rci.reg_centres.schema.name_col) {
+        col_reg_centre_name = column_index;
+      };
+
+      if (column_data.name == gtv.rci.reg_centres.schema.phase_col) {
+        col_phase = column_index;
+      };
+      if (column_data.name == gtv.rci.reg_centres.schema.phase_start_col) {
+        col_phase_start = column_index;
+      };
+      if (column_data.name == gtv.rci.reg_centres.schema.phase_end_col) {
+        col_phase_end = column_index;
+      };
+
+      if (column_data.name == gtv.rci.reg_centres.schema.ward_name_col) {
+        col_ward_name = column_index;
+      };
+      if (column_data.name == gtv.rci.reg_centres.schema.polling_district_no) {
+        col_pd_no = column_index;
+      };
+      if (column_data.name == gtv.rci.reg_centres.schema.polling_district_name) {
+        col_pd_name = column_index;
+      };
+    });
+
+    $.each(rows, function (row_index, row_data) {
+      gtv.rci.reg_centres.data.phases[row_data[col_phase]] = {
+        start: row_data[col_phase_start],
+        end: row_data[col_phase_end]
+      };
+
+      gtv.rci.reg_centres.data.centres.push(
+        {
+          id: row_data[col_reg_centre_id],
+          name: row_data[col_reg_centre_name],
+          ward_name: row_data[col_ward_name],
+          pd_no: row_data[col_pd_no],
+          pd_name: row_data[col_pd_name]
+        }
+      );
+
+    });
+
+    this.display(true);
+    
+    return this.data;
+  };
+
+  gtv.rci.reg_centres.fetch = function () {
+
+    if (gtv.rci.admin_levels.selects[gtv.rci.admin_levels.selects.length - 1] == 's') {
+      return false;
+    };
+
+    sql_reg_centres = "";
+    $.each(gtv.rci.columns.data.items, function (column_index, column_data) {
+      sql_reg_centres += "'" + column_data.name + "',";
+    });
+    sql_reg_centres = sql_reg_centres.substring(0, sql_reg_centres.length-1);
+
+    sql_reg_centres = "SELECT " + sql_reg_centres + " FROM " + gtv.rci.TABLE_ID + " WHERE '" +
+                      gtv.rci.admin_levels.schema[gtv.rci.admin_levels.schema.length-1].id_col + "'" +
+                      "=" + (gtv.rci.admin_levels.selects[gtv.rci.admin_levels.selects.length-1]+1);
+
+    $.ajax({
+      url: gtv.rci.FT_SQL_URL,
+      data: {
+        sql: sql_reg_centres,
+        key: gtv.rci.API_KEY
+      }
+    }).done( function (response) {
+      gtv.rci.reg_centres.set(response.rows);
+    });
+  };
+
+
+  gtv.rci.columns.fetch();
+
   gtv.rci.admin_levels.fetch();
 
-
-  gtv.rci.columns.get(0);
-
+  
   console.log(gtv.rci);
 
 })(jQuery);
