@@ -76,7 +76,11 @@ gtv.rci = {
 
         ward_name_col: "{{ site.ft.reg_centres.ward_name_col }}",
         polling_district_no: "{{ site.ft.reg_centres.polling_district_no }}",
-        polling_district_name: "{{ site.ft.reg_centres.polling_district_name }}"
+        polling_district_name: "{{ site.ft.reg_centres.polling_district_name }}",
+
+        data: {
+          columns: {}
+        }
       },
     data: {}
   }
@@ -256,10 +260,33 @@ gtv.rci = {
       return false;
     };
 
+    $('#gtv-reg-centres').html('<p class="text-centre"><i class="fa fa-spinner fa-pulse fa-3x"></i></p>');
+
     if (!is_fetched) {
       this.fetch();
+      return false;
     } else {
+      reg_centres_phases_html = [];
+      $.each(this.data.phases, function (phase_index, phase) {
+        reg_centres_phases_html[phase_index] = '' +
+          '<div class="col-md-8 col-md-offset-2 text-centre">' +
+            '<h3>Phase ' + (phase_index+1) + '</h3>' +
+            '<p class="text-muted">From: ' + phase.start + ' | To: ' + phase.end + '</p>'+
+          '</div>';
 
+        reg_centres_phases_html[phase_index] += '' +
+          '<div class="col-md-6 col-md-offset-3 text-centre"><hr/>';
+        
+          $.each(gtv.rci.reg_centres.data.centres, function (centre_index, centre) {
+            if (centre.phase == phase_index+1) {
+              reg_centres_phases_html[phase_index] += '<p>' + centre.name + '</p><hr/>';
+            };
+          });
+
+        reg_centres_phases_html[phase_index] += '</div>';
+      });
+
+      $('#gtv-reg-centres').html(reg_centres_phases_html.join(''));
     };
     
   };
@@ -269,61 +296,53 @@ gtv.rci = {
     this.data.centres = [];
     this.data.phases = [];
 
-    col_reg_centre_id = 0;
-    col_reg_centre_name = 0;
-
-    col_phase = 0;
-    col_phase_start = 0;
-    col_phase_end = 0;
-
-    col_ward_name = 0;
-    col_pd_no = 0;
-    col_pd_name = 0;
-
     $.each(gtv.rci.columns.data.items, function(column_index, column_data){
       if (column_data.name == gtv.rci.reg_centres.schema.id_col) {
-        col_reg_centre_id = column_index;
+        gtv.rci.reg_centres.schema.data.columns.id = column_index;
       };
       if (column_data.name == gtv.rci.reg_centres.schema.name_col) {
-        col_reg_centre_name = column_index;
+        gtv.rci.reg_centres.schema.data.columns.name = column_index;
       };
 
       if (column_data.name == gtv.rci.reg_centres.schema.phase_col) {
-        col_phase = column_index;
+        gtv.rci.reg_centres.schema.data.columns.phase = column_index;
       };
       if (column_data.name == gtv.rci.reg_centres.schema.phase_start_col) {
-        col_phase_start = column_index;
+        gtv.rci.reg_centres.schema.data.columns.phase_start = column_index;
       };
       if (column_data.name == gtv.rci.reg_centres.schema.phase_end_col) {
-        col_phase_end = column_index;
+        gtv.rci.reg_centres.schema.data.columns.phase_end = column_index;
       };
 
       if (column_data.name == gtv.rci.reg_centres.schema.ward_name_col) {
-        col_ward_name = column_index;
+        gtv.rci.reg_centres.schema.data.columns.ward_name = column_index;
       };
       if (column_data.name == gtv.rci.reg_centres.schema.polling_district_no) {
-        col_pd_no = column_index;
+        gtv.rci.reg_centres.schema.data.columns.pd_no = column_index;
       };
       if (column_data.name == gtv.rci.reg_centres.schema.polling_district_name) {
-        col_pd_name = column_index;
+        gtv.rci.reg_centres.schema.data.columns.pd_name = column_index;
       };
     });
 
     $.each(rows, function (row_index, row_data) {
-      gtv.rci.reg_centres.data.phases[row_data[col_phase]] = {
-        start: row_data[col_phase_start],
-        end: row_data[col_phase_end]
-      };
-
       gtv.rci.reg_centres.data.centres.push(
         {
-          id: row_data[col_reg_centre_id],
-          name: row_data[col_reg_centre_name],
-          ward_name: row_data[col_ward_name],
-          pd_no: row_data[col_pd_no],
-          pd_name: row_data[col_pd_name]
+          id: row_data[gtv.rci.reg_centres.schema.data.columns.id],
+          name: row_data[gtv.rci.reg_centres.schema.data.columns.name],
+
+          ward_name: row_data[gtv.rci.reg_centres.schema.data.columns.ward_name],
+          pd_no: row_data[gtv.rci.reg_centres.schema.data.columns.pd_no],
+          pd_name: row_data[gtv.rci.reg_centres.schema.data.columns.pd_name],
+
+          phase: row_data[gtv.rci.reg_centres.schema.data.columns.phase]
         }
       );
+
+      gtv.rci.reg_centres.data.phases[row_data[gtv.rci.reg_centres.schema.data.columns.phase]-1] = {
+        start: row_data[gtv.rci.reg_centres.schema.data.columns.phase_start],
+        end: row_data[gtv.rci.reg_centres.schema.data.columns.phase_end]
+      };
 
     });
 
@@ -370,3 +389,29 @@ gtv.rci = {
 })(jQuery);
 
 
+
+// Other Functions
+
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, function (txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
+
+function goToByScroll(id) {
+  // Remove "link" from the ID
+  id = id.replace("link", "");
+  // Scroll
+  $('html,body').animate({
+        scrollTop: $('a[name="' + id + '"]').offset().top
+      },
+      'slow');
+}
+
+$("#jumbotron > a").click(function (e) {
+  // Prevent a page reload when a link is pressed
+  e.preventDefault();
+  // Call the scroll function
+  goToByScroll($(this).attr("id"));
+});

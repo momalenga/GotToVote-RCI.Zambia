@@ -164,7 +164,14 @@ footer {
 }
 
 #admin-levels-selects {
+  margin: 20px 0;
   select, option {
     text-transform: capitalize;
   }
+}
+
+#gtv-reg-centres {
+  hr {
+    margin: 10px 0;
+  } 
 }
